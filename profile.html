@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiteHack - Профиль</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0B1221;
+            --bg-secondary: #0A1015;
+            --text-primary: #00ff9d;
+            --text-secondary: #ffffff;
+            --error-color: #ff4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background: linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary));
+            color: var(--text-secondary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(11, 18, 33, 0.95);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid var(--text-primary);
+        }
+
+        .logo {
+            color: var(--text-primary);
+            font-size: 1.8rem;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 1px solid var(--text-primary);
+            color: var(--text-primary);
+            padding: 8px 20px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(0, 255, 157, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.3);
+        }
+
+        .profile-container {
+            max-width: 800px;
+            margin: 80px auto 0;
+            background: rgba(11, 18, 33, 0.95);
+            border: 1px solid var(--text-primary);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(0, 255, 157, 0.4);
+            }
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .profile-title {
+            color: var(--text-primary);
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+        }
+
+        .profile-subtitle {
+            color: var(--text-secondary);
+            opacity: 0.8;
+            font-size: 1rem;
+        }
+
+        .profile-info {
+            margin-top: 30px;
+        }
+
+        .info-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 255, 157, 0.05);
+            border-radius: 5px;
+            border-left: 3px solid var(--text-primary);
+        }
+
+        .info-label {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .stat-card {
+            background: rgba(0, 255, 157, 0.05);
+            border: 1px solid var(--text-primary);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 255, 157, 0.2);
+        }
+
+        .stat-value {
+            color: var(--text-primary);
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.3);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 600px) {
+            .profile-container {
+                margin-top: 60px;
+                padding: 20px;
+            }
+
+            .profile-title {
+                font-size: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="index.html" class="logo">WiteHack</a>
+        <button class="logout-btn" onclick="handleLogout()">Выйти</button>
+    </nav>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <h1 class="profile-title">Профиль</h1>
+            <p class="profile-subtitle">Добро пожаловать в WiteHack</p>
+        </div>
+
+        <div class="profile-info">
+            <div class="info-group">
+                <div class="info-label">Имя пользователя</div>
+                <div class="info-value" id="username"></div>
+            </div>
+            <div class="info-group">
+                <div class="info-label">Email</div>
+                <div class="info-value" id="email"></div>
+            </div>
+            <div class="info-group">
+                <div class="info-label">Дата регистрации</div>
+                <div class="info-value" id="registrationDate"></div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">0</div>
+                <div class="stat-label">Пройдено курсов</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">0</div>
+                <div class="stat-label">Выполнено заданий</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">0</div>
+                <div class="stat-label">Достижений</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Проверяем авторизацию
+        function checkAuth() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            return JSON.parse(currentUser);
+        }
+
+        // Загружаем данные пользователя
+        function loadUserData() {
+            const user = checkAuth();
+            if (!user) return;
+
+            document.getElementById('username').textContent = user.username;
+            document.getElementById('email').textContent = user.email;
+            
+            // Форматируем дату регистрации
+            const date = new Date(user.registrationDate);
+            const formattedDate = date.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('registrationDate').textContent = formattedDate;
+        }
+
+        // Обработчик выхода
+        function handleLogout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        // Загружаем данные при загрузке страницы
+        window.addEventListener('load', loadUserData);
+    </script>
+</body>
+</html> 

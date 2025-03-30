@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiteHack - Вход</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0B1221;
+            --bg-secondary: #0A1015;
+            --text-primary: #00ff9d;
+            --text-secondary: #ffffff;
+            --error-color: #ff4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background: linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary));
+            color: var(--text-secondary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(11, 18, 33, 0.95);
+            border: 1px solid var(--text-primary);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(0, 255, 157, 0.4);
+            }
+        }
+
+        .auth-title {
+            color: var(--text-primary);
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 255, 157, 0.1);
+            border: 1px solid var(--text-primary);
+            border-radius: 5px;
+            color: var(--text-secondary);
+            font-family: 'Fira Code', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.3);
+            background: rgba(0, 255, 157, 0.15);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--text-primary);
+            color: var(--text-primary);
+            font-family: 'Fira Code', monospace;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            background: rgba(0, 255, 157, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.3);
+        }
+
+        .auth-link {
+            display: block;
+            text-align: center;
+            color: var(--text-primary);
+            text-decoration: none;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .auth-link:hover {
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo a {
+            color: var(--text-primary);
+            font-size: 2rem;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo">
+            <a href="index.html">WiteHack</a>
+        </div>
+        <h1 class="auth-title">Вход</h1>
+        <form id="loginForm" onsubmit="return handleLogin(event)">
+            <div class="form-group">
+                <label class="form-label" for="loginInput">Логин или Email</label>
+                <input type="text" id="loginInput" class="form-input" required>
+                <div class="error-message" id="loginError"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="password">Пароль</label>
+                <input type="password" id="password" class="form-input" required>
+                <div class="error-message" id="passwordError"></div>
+            </div>
+            <button type="submit" class="submit-btn">Войти</button>
+        </form>
+        <a href="register.html" class="auth-link">Нет аккаунта? Зарегистрироваться</a>
+    </div>
+
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            // Очищаем предыдущие ошибки
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.style.display = 'none';
+                el.textContent = '';
+            });
+
+            // Получаем значения полей
+            const loginInput = document.getElementById('loginInput').value;
+            const password = document.getElementById('password').value;
+
+            // Получаем список пользователей
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+
+            // Ищем пользователя по логину или email
+            const user = users.find(u => 
+                u.username === loginInput || u.email === loginInput
+            );
+
+            // Проверяем существование пользователя и правильность пароля
+            if (!user) {
+                showError('loginError', 'Пользователь не найден');
+                return false;
+            }
+
+            if (user.password !== password) {
+                showError('passwordError', 'Неверный пароль');
+                return false;
+            }
+
+            // Сохраняем текущего пользователя
+            localStorage.setItem('currentUser', JSON.stringify(user));
+
+            // Перенаправляем на страницу профиля
+            window.location.href = 'profile.html';
+            return false;
+        }
+
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+    </script>
+</body>
+</html> 

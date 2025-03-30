@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiteHack - Frontend Курсы</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CodeMirror -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0B1221;
+            --bg-secondary: #0A1015;
+            --text-primary: #00ff9d;
+            --text-secondary: #ffffff;
+            --accent-color: #ff00ff;
+            --progress-bg: rgba(0, 255, 157, 0.1);
+            --card-bg: rgba(11, 18, 33, 0.95);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background: linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary));
+            color: var(--text-secondary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(11, 18, 33, 0.95);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid var(--text-primary);
+        }
+
+        .logo {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+        }
+
+        .sidebar {
+            background: var(--card-bg);
+            border: 1px solid var(--text-primary);
+            border-radius: 10px;
+            padding: 20px;
+            height: calc(100vh - 100px);
+            position: sticky;
+            top: 80px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--text-primary) var(--bg-primary);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background-color: var(--text-primary);
+            border-radius: 3px;
+        }
+
+        .course-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--text-primary);
+        }
+
+        .lesson-list {
+            list-style: none;
+        }
+
+        .lesson-item {
+            padding: 8px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lesson-item:hover {
+            background: rgba(0, 255, 157, 0.1);
+        }
+
+        .lesson-item.active {
+            background: rgba(0, 255, 157, 0.2);
+            border: 1px solid var(--text-primary);
+        }
+
+        .lesson-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid var(--text-primary);
+        }
+
+        .lesson-status.completed {
+            background: var(--text-primary);
+            box-shadow: 0 0 10px var(--text-primary);
+        }
+
+        .main-content {
+            background: var(--card-bg);
+            border: 1px solid var(--text-primary);
+            border-radius: 10px;
+            padding: 30px;
+            min-height: calc(100vh - 100px);
+        }
+
+        .lesson-title {
+            color: var(--text-primary);
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+        }
+
+        .lesson-content {
+            margin-bottom: 30px;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--text-primary);
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Fira Code', monospace;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .code-block::before {
+            content: attr(data-language);
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            background: var(--bg-primary);
+            padding: 0 10px;
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            border: 1px solid var(--text-primary);
+            border-radius: 3px;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--text-primary);
+        }
+
+        .nav-button {
+            background: transparent;
+            border: 1px solid var(--text-primary);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-button:hover {
+            background: rgba(0, 255, 157, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.3);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--progress-bg);
+            border-radius: 2px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--text-primary);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--text-primary);
+        }
+
+        .practice-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 255, 157, 0.05);
+            border-radius: 10px;
+            border: 1px solid var(--text-primary);
+        }
+
+        .practice-title {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .interactive-demo {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                height: auto;
+                margin-bottom: 20px;
+            }
+        }
+
+        .course-overview {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .course-title {
+            color: var(--text-primary);
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+        }
+
+        .course-description {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .tech-tag {
+            background: rgba(0, 255, 157, 0.1);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--text-primary);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .tech-tag:hover {
+            background: rgba(0, 255, 157, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .select-course-btn {
+            background: transparent;
+            color: #00ff9d;
+            border: 2px solid #00ff9d;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-family: 'Fira Code', monospace;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 20px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .select-course-btn:hover {
+            background: rgba(0, 255, 157, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+        }
+
+        .select-course-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Добавляем стили для CodeMirror и тестов */
+        .code-editor {
+            margin: 20px 0;
+            border: 1px solid var(--text-primary);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .CodeMirror {
+            height: auto;
+            background: var(--bg-secondary) !important;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+        }
+
+        .editor-controls {
+            padding: 10px;
+            background: rgba(0, 255, 157, 0.1);
+            display: flex;
+            gap: 10px;
+        }
+
+        .run-code-btn, .test-btn {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--text-primary);
+            padding: 8px 16px;
+            cursor: pointer;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .run-code-btn:hover, .test-btn:hover {
+            background: rgba(0, 255, 157, 0.1);
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.3);
+        }
+
+        .result-container {
+            padding: 15px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--text-primary);
+        }
+
+        .test-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 255, 157, 0.05);
+            border: 1px solid var(--text-primary);
+            border-radius: 5px;
+        }
+
+        .test-question {
+            margin-bottom: 20px;
+        }
+
+        .test-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .test-option {
+            padding: 10px;
+            border: 1px solid var(--text-primary);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .test-option:hover {
+            background: rgba(0, 255, 157, 0.1);
+        }
+
+        .test-option.selected {
+            background: rgba(0, 255, 157, 0.2);
+            border-color: var(--text-primary);
+        }
+
+        .test-result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .test-result.correct {
+            background: rgba(0, 255, 157, 0.1);
+            border: 1px solid var(--text-primary);
+        }
+
+        .test-result.incorrect {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff0000;
+        }
+
+        .lesson-complete-btn {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-family: 'Fira Code', monospace;
+            cursor: pointer;
+            margin-top: 30px;
+            width: 100%;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .lesson-complete-btn:hover {
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .lesson-status.completed {
+            background: var(--text-primary);
+            box-shadow: 0 0 10px var(--text-primary);
+        }
+
+        .lesson-item.active {
+            background: rgba(0, 255, 157, 0.2);
+            border: 1px solid var(--text-primary);
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.3);
+        }
+
+        /* Общие стили для курса */
+        .course-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+            min-height: 100vh;
+            background-color: #0a0a0a;
+            color: #00ff9d;
+        }
+
+        /* Боковая панель с навигацией */
+        .course-sidebar {
+            background-color: #111;
+            padding: 20px;
+            border-right: 1px solid #00ff9d33;
+        }
+
+        .course-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .course-nav-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #00ff9d33;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .course-nav-item:hover {
+            background-color: #00ff9d22;
+            border-color: #00ff9d;
+        }
+
+        .course-nav-item.active {
+            background-color: #00ff9d22;
+            border-color: #00ff9d;
+            box-shadow: 0 0 10px #00ff9d55;
+        }
+
+        .course-nav-item.completed {
+            border-left: 4px solid #00ff9d;
+        }
+
+        /* Основной контент урока */
+        .lesson-content {
+            padding: 20px;
+            background-color: #111;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.1);
+        }
+
+        .lesson-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #00ff9d33;
+        }
+
+        .lesson-progress {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .progress-indicator {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9em;
+        }
+
+        .difficulty-badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .difficulty-badge.beginner {
+            background-color: #00ff9d22;
+            border: 1px solid #00ff9d;
+            color: #00ff9d;
+        }
+
+        /* Код и редактор */
+        .code-section {
+            margin: 20px 0;
+            background-color: #0a0a0a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .code-editor {
+            border: 1px solid #00ff9d33;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .editor-controls {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background-color: #161616;
+            border-top: 1px solid #00ff9d33;
+        }
+
+        .run-code-btn,
+        .test-btn,
+        .complete-lesson-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background-color: #00ff9d22;
+            border: 1px solid #00ff9d;
+            color: #00ff9d;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Fira Code', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .run-code-btn:hover,
+        .test-btn:hover,
+        .complete-lesson-btn:hover {
+            background-color: #00ff9d33;
+            box-shadow: 0 0 10px #00ff9d55;
+        }
+
+        /* Навигация между уроками */
+        .lesson-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #00ff9d33;
+        }
+
+        .prev-lesson-btn,
+        .next-lesson-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background-color: transparent;
+            border: 1px solid #00ff9d33;
+            color: #00ff9d;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .prev-lesson-btn:hover:not(:disabled),
+        .next-lesson-btn:hover:not(:disabled) {
+            border-color: #00ff9d;
+            background-color: #00ff9d11;
+            box-shadow: 0 0 10px #00ff9d33;
+        }
+
+        .prev-lesson-btn:disabled,
+        .next-lesson-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Тесты */
+        .test-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #0a0a0a;
+            border: 1px solid #00ff9d33;
+            border-radius: 8px;
+        }
+
+        .test-question {
+            margin-bottom: 20px;
+        }
+
+        .test-options {
+            display: grid;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .test-option {
+            padding: 10px;
+            background-color: #161616;
+            border: 1px solid #00ff9d33;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .test-option:hover {
+            background-color: #00ff9d11;
+            border-color: #00ff9d;
+        }
+
+        .test-option.selected {
+            background-color: #00ff9d22;
+            border-color: #00ff9d;
+        }
+
+        .test-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .test-result.correct {
+            background-color: #00ff9d22;
+            color: #00ff9d;
+        }
+
+        .test-result.incorrect {
+            background-color: #ff000022;
+            color: #ff6b6b;
+        }
+
+        /* Дополнительные стили */
+        .concept-list li {
+            margin-bottom: 10px;
+        }
+
+        .concept-title {
+            color: #00ff9d;
+            font-weight: bold;
+        }
+
+        .highlight {
+            color: #00ff9d;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .key-points {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #00ff9d11;
+            border: 1px solid #00ff9d33;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="index.html" class="logo">WiteHack</a>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar">
+            <div class="course-section">
+                <h2 class="section-title">HTML</h2>
+                <ul class="lesson-list" id="html-lessons">
+                    <li class="lesson-item" data-lesson="html-intro">
+                        <span class="lesson-status"></span>
+                        Введение в HTML
+                    </li>
+                    <li class="lesson-item" data-lesson="html-basic-tags">
+                        <span class="lesson-status"></span>
+                        Основные теги
+                    </li>
+                    <li class="lesson-item" data-lesson="html-forms">
+                        <span class="lesson-status"></span>
+                        Формы и ввод
+                    </li>
+                    <li class="lesson-item" data-lesson="html-tables">
+                        <span class="lesson-status"></span>
+                        Таблицы и списки
+                    </li>
+                    <li class="lesson-item" data-lesson="html-media">
+                        <span class="lesson-status"></span>
+                        Видео и аудио
+                    </li>
+                    <li class="lesson-item" data-lesson="html-semantic">
+                        <span class="lesson-status"></span>
+                        Семантический HTML
+                    </li>
+                </ul>
+            </div>
+
+            <div class="course-section">
+                <h2 class="section-title">CSS</h2>
+                <ul class="lesson-list" id="css-lessons">
+                    <li class="lesson-item" data-lesson="css-intro">
+                        <span class="lesson-status"></span>
+                        Основы CSS
+                    </li>
+                    <li class="lesson-item" data-lesson="css-flexbox">
+                        <span class="lesson-status"></span>
+                        Flexbox и Grid
+                    </li>
+                    <li class="lesson-item" data-lesson="css-animations">
+                        <span class="lesson-status"></span>
+                        CSS-анимации
+                    </li>
+                    <li class="lesson-item" data-lesson="css-responsive">
+                        <span class="lesson-status"></span>
+                        Адаптивная верстка
+                    </li>
+                    <li class="lesson-item" data-lesson="css-forms">
+                        <span class="lesson-status"></span>
+                        Стилизация форм
+                    </li>
+                </ul>
+            </div>
+
+            <div class="course-section">
+                <h2 class="section-title">JavaScript</h2>
+                <ul class="lesson-list" id="js-lessons">
+                    <li class="lesson-item" data-lesson="js-intro">
+                        <span class="lesson-status"></span>
+                        Основы JavaScript
+                    </li>
+                    <li class="lesson-item" data-lesson="js-dom">
+                        <span class="lesson-status"></span>
+                        Работа с DOM
+                    </li>
+                    <li class="lesson-item" data-lesson="js-events">
+                        <span class="lesson-status"></span>
+                        События
+                    </li>
+                    <li class="lesson-item" data-lesson="js-storage">
+                        <span class="lesson-status"></span>
+                        LocalStorage
+                    </li>
+                    <li class="lesson-item" data-lesson="js-async">
+                        <span class="lesson-status"></span>
+                        Асинхронный JS
+                    </li>
+                </ul>
+            </div>
+
+            <div class="course-section">
+                <h2 class="section-title">React</h2>
+                <ul class="lesson-list" id="react-lessons">
+                    <li class="lesson-item" data-lesson="react-intro">
+                        <span class="lesson-status"></span>
+                        Введение в React
+                    </li>
+                    <li class="lesson-item" data-lesson="react-props">
+                        <span class="lesson-status"></span>
+                        Props и State
+                    </li>
+                    <li class="lesson-item" data-lesson="react-lifecycle">
+                        <span class="lesson-status"></span>
+                        Жизненный цикл
+                    </li>
+                    <li class="lesson-item" data-lesson="react-router">
+                        <span class="lesson-status"></span>
+                        Маршрутизация
+                    </li>
+                </ul>
+            </div>
+
+            <div class="course-section">
+                <h2 class="section-title">Bootstrap</h2>
+                <ul class="lesson-list" id="bootstrap-lessons">
+                    <li class="lesson-item" data-lesson="bootstrap-intro">
+                        <span class="lesson-status"></span>
+                        Установка Bootstrap
+                    </li>
+                    <li class="lesson-item" data-lesson="bootstrap-grid">
+                        <span class="lesson-status"></span>
+                        Grid система
+                    </li>
+                    <li class="lesson-item" data-lesson="bootstrap-components">
+                        <span class="lesson-status"></span>
+                        Компоненты
+                    </li>
+                </ul>
+            </div>
+
+            <div class="course-section">
+                <h2 class="section-title">W3.CSS</h2>
+                <ul class="lesson-list" id="w3css-lessons">
+                    <li class="lesson-item" data-lesson="w3css-intro">
+                        <span class="lesson-status"></span>
+                        Введение в W3.CSS
+                    </li>
+                    <li class="lesson-item" data-lesson="w3css-styles">
+                        <span class="lesson-status"></span>
+                        Основные стили
+                    </li>
+                    <li class="lesson-item" data-lesson="w3css-templates">
+                        <span class="lesson-status"></span>
+                        Шаблоны
+                    </li>
+                </ul>
+            </div>
+
+            <div class="course-section">
+                <h2 class="section-title">TypeScript</h2>
+                <ul class="lesson-list" id="ts-lessons">
+                    <li class="lesson-item" data-lesson="ts-intro">
+                        <span class="lesson-status"></span>
+                        Основы TypeScript
+                    </li>
+                    <li class="lesson-item" data-lesson="ts-types">
+                        <span class="lesson-status"></span>
+                        Типы данных
+                    </li>
+                    <li class="lesson-item" data-lesson="ts-interfaces">
+                        <span class="lesson-status"></span>
+                        Интерфейсы
+                    </li>
+                </ul>
+            </div>
+
+            <div class="course-section">
+                <h2 class="section-title">Vue</h2>
+                <ul class="lesson-list" id="vue-lessons">
+                    <li class="lesson-item" data-lesson="vue-intro">
+                        <span class="lesson-status"></span>
+                        Введение в Vue
+                    </li>
+                    <li class="lesson-item" data-lesson="vue-data">
+                        <span class="lesson-status"></span>
+                        Реактивность
+                    </li>
+                    <li class="lesson-item" data-lesson="vue-directives">
+                        <span class="lesson-status"></span>
+                        Директивы
+                    </li>
+                </ul>
+            </div>
+
+            <div class="course-section">
+                <h2 class="section-title">Angular</h2>
+                <ul class="lesson-list" id="angular-lessons">
+                    <li class="lesson-item" data-lesson="angular-intro">
+                        <span class="lesson-status"></span>
+                        Введение в Angular
+                    </li>
+                    <li class="lesson-item" data-lesson="angular-components">
+                        <span class="lesson-status"></span>
+                        Компоненты
+                    </li>
+                    <li class="lesson-item" data-lesson="angular-services">
+                        <span class="lesson-status"></span>
+                        Сервисы
+                    </li>
+                </ul>
+            </div>
+
+            <div class="course-section">
+                <h2 class="section-title">SASS</h2>
+                <ul class="lesson-list" id="sass-lessons">
+                    <li class="lesson-item" data-lesson="sass-intro">
+                        <span class="lesson-status"></span>
+                        Введение в SASS
+                    </li>
+                    <li class="lesson-item" data-lesson="sass-variables">
+                        <span class="lesson-status"></span>
+                        Переменные
+                    </li>
+                    <li class="lesson-item" data-lesson="sass-mixins">
+                        <span class="lesson-status"></span>
+                        Миксины
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="course-overview" id="course-overview">
+                <h1 class="course-title">Frontend</h1>
+                <p class="course-description">HTML, CSS, JavaScript, React, Vue, Angular, Bootstrap, W3.CSS, TypeScript, SASS</p>
+                
+                <div class="tech-tags">
+                    <span class="tech-tag">HTML</span>
+                    <span class="tech-tag">CSS</span>
+                    <span class="tech-tag">JavaScript</span>
+                    <span class="tech-tag">React</span>
+                    <span class="tech-tag">Bootstrap</span>
+                    <span class="tech-tag">W3.CSS</span>
+                    <span class="tech-tag">TypeScript</span>
+                    <span class="tech-tag">Vue</span>
+                    <span class="tech-tag">Angular</span>
+                    <span class="tech-tag">SASS</span>
+                </div>
+
+                <button class="select-course-btn" id="start-course-btn">ВЫБРАТЬ КУРС</button>
+            </div>
+
+            <div class="course-content" id="course-content" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+
+                <h1 class="lesson-title">Выберите урок</h1>
+                
+                <div class="lesson-content">
+                    <p>Добро пожаловать в курс по Frontend разработке! Выберите урок из меню слева, чтобы начать обучение.</p>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="nav-button" id="prev-lesson" disabled>
+                        ← Предыдущий урок
+                    </button>
+                    <button class="nav-button" id="next-lesson" disabled>
+                        Следующий урок →
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/frontend-lessons.js"></script>
+    <script>
+        // Глобальные переменные
+        let currentSection = 'html';
+        let currentLessonId = null;
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeUI();
+            setupEventListeners();
+            loadUserProgress();
+        });
+
+        // Инициализация UI
+        function initializeUI() {
+            // Добавляем обработчик для кнопки старта курса
+            const startButton = document.getElementById('start-course-btn');
+            if (startButton) {
+                startButton.addEventListener('click', startCourse);
+            }
+
+            // Добавляем обработчики для уроков
+            document.querySelectorAll('.lesson-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const lessonId = item.dataset.lesson;
+                    loadLesson(lessonId);
+                });
+            });
+
+            // Инициализируем CodeMirror для всех редакторов
+            document.querySelectorAll('.code-editor').forEach(initializeCodeEditor);
+        }
+
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Обработчики для кнопок навигации
+            document.querySelectorAll('.prev-lesson-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const prevLessonId = userProgress.getPrevLesson(currentLessonId);
+                    if (prevLessonId) loadLesson(prevLessonId);
+                });
+            });
+
+            document.querySelectorAll('.next-lesson-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const nextLessonId = userProgress.getNextLesson(currentLessonId);
+                    if (nextLessonId) loadLesson(nextLessonId);
+                });
+            });
+
+            // Обработчики для кнопок запуска кода
+            document.querySelectorAll('.run-code-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const editor = btn.closest('.code-editor');
+                    if (editor && editor.CodeMirror) {
+                        runCode(editor);
+                    }
+                });
+            });
+
+            // Обработчики для кнопок проверки решения
+            document.querySelectorAll('.test-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const editor = btn.closest('.code-editor');
+                    if (editor && editor.CodeMirror) {
+                        checkSolution(editor);
+                    }
+                });
+            });
+
+            // Обработчики для кнопок завершения урока
+            document.querySelectorAll('.complete-lesson-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    completeCurrentLesson();
+                });
+            });
+        }
+
+        // Загрузка прогресса пользователя
+        function loadUserProgress() {
+            const progress = userProgress.load();
+            
+            // Отмечаем завершенные уроки
+            progress.completedLessons.forEach(lessonId => {
+                const lessonItem = document.querySelector(`[data-lesson="${lessonId}"]`);
+                if (lessonItem) {
+                    lessonItem.classList.add('completed');
+                }
+            });
+
+            // Загружаем последний активный урок
+            if (progress.currentLesson) {
+                loadLesson(progress.currentLesson);
+            }
+        }
+
+        // Функция запуска курса
+        function startCourse() {
+            document.getElementById('course-overview').style.display = 'none';
+            document.getElementById('course-content').style.display = 'block';
+            
+            // Загружаем первый урок
+            const firstLesson = document.querySelector('.lesson-item');
+            if (firstLesson) {
+                const lessonId = firstLesson.dataset.lesson;
+                loadLesson(lessonId);
+            }
+        }
+
+        // Загрузка урока
+        function loadLesson(lessonId) {
+            const lesson = findLesson(lessonId);
+            if (!lesson) return;
+
+            currentLessonId = lessonId;
+            currentSection = lessonId.split('-')[0];
+
+            // Обновляем UI
+            updateLessonUI(lesson);
+            updateNavigationState(lessonId);
+            
+            // Сохраняем текущий урок в прогрессе
+            const progress = userProgress.load();
+            progress.currentLesson = lessonId;
+            userProgress.save(progress);
+        }
+
+        // Обновление UI урока
+        function updateLessonUI(lesson) {
+            // Обновляем заголовок и содержимое
+            document.querySelector('.lesson-title').textContent = lesson.title;
+            document.querySelector('.lesson-content').innerHTML = lesson.content;
+
+            // Обновляем индикатор прогресса
+            const progress = userProgress.load();
+            const totalLessons = getTotalLessonsCount();
+            const completedCount = progress.completedLessons.length;
+            document.querySelector('.progress-indicator').textContent = 
+                `Пройдено ${completedCount} из ${totalLessons} уроков`;
+
+            // Инициализируем редакторы кода
+            document.querySelectorAll('.code-editor').forEach(initializeCodeEditor);
+
+            // Обновляем статус кнопок навигации
+            updateNavigationButtons();
+        }
+
+        // Обновление состояния навигации
+        function updateNavigationState(lessonId) {
+            // Отмечаем активный урок в списке
+            document.querySelectorAll('.lesson-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.lesson === lessonId) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Обновляем состояние кнопок навигации
+            const prevLessonId = userProgress.getPrevLesson(lessonId);
+            const nextLessonId = userProgress.getNextLesson(lessonId);
+            
+            const prevBtn = document.querySelector('.prev-lesson-btn');
+            const nextBtn = document.querySelector('.next-lesson-btn');
+            
+            if (prevBtn) prevBtn.disabled = !prevLessonId;
+            if (nextBtn) nextBtn.disabled = !nextLessonId;
+        }
+
+        // Инициализация CodeMirror
+        function initializeCodeEditor(editor) {
+            const textarea = editor.querySelector('textarea');
+            if (!textarea || editor.CodeMirror) return;
+
+            const cm = CodeMirror.fromTextArea(textarea, {
+                mode: editor.dataset.language || 'html',
+                theme: 'monokai',
+                lineNumbers: true,
+                autoCloseTags: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 4,
+                lineWrapping: true
+            });
+
+            editor.CodeMirror = cm;
+        }
+
+        // Запуск кода
+        function runCode(editor) {
+            const code = editor.CodeMirror.getValue();
+            const resultContainer = editor.querySelector('.result-container');
+            const language = editor.dataset.language;
+
+            if (language === 'html') {
+                resultContainer.innerHTML = code;
+            } else if (language === 'javascript') {
+                try {
+                    const result = eval(code);
+                    resultContainer.textContent = result;
+                } catch (error) {
+                    resultContainer.textContent = 'Ошибка: ' + error.message;
+                }
+            }
+        }
+
+        // Проверка решения
+        function checkSolution(editor) {
+            const code = editor.CodeMirror.getValue();
+            const resultContainer = editor.querySelector('.result-container');
+            
+            // Здесь должна быть логика проверки решения
+            // Пока просто показываем сообщение об успехе
+            resultContainer.innerHTML = '<div class="test-result correct">Решение верное! 🎉</div>';
+        }
+
+        // Завершение текущего урока
+        function completeCurrentLesson() {
+            if (!currentLessonId) return;
+
+            // Отмечаем урок как завершенный
+            userProgress.completeLesson(currentLessonId);
+
+            // Обновляем UI
+            const lessonItem = document.querySelector(`[data-lesson="${currentLessonId}"]`);
+            if (lessonItem) {
+                lessonItem.classList.add('completed');
+            }
+
+            // Показываем сообщение об успехе
+            alert('Урок успешно завершен! 🎉');
+
+            // Переходим к следующему уроку
+            const nextLessonId = userProgress.getNextLesson(currentLessonId);
+            if (nextLessonId) {
+                loadLesson(nextLessonId);
+            }
+        }
+
+        // Вспомогательные функции
+        function findLesson(lessonId) {
+            const section = lessonId.split('-')[0];
+            return courseContent[section]?.lessons.find(l => l.id === lessonId);
+        }
+
+        function getTotalLessonsCount() {
+            return Object.values(courseContent).reduce((total, section) => {
+                return total + section.lessons.length;
+            }, 0);
+        }
+    </script>
+</body>
+</html> 
